@@ -59,18 +59,18 @@ export async function POST(req: Request) {
 
   // Automatic calculations
   if (record.accident_time && record.arrival_time) {
-    record.time_interval_to_hospital = minutesBetween(String(record.accident_time), String(record.arrival_time));
+    record.minutes_to_hospital = minutesBetween(String(record.accident_time), String(record.arrival_time));
   }
-  if (record.accident_date && record.accident_time && record.date_of_death && record.time_of_death) {
+  if (record.accident_date && record.accident_time && record.death_date && record.death_time) {
     const a = new Date(`${record.accident_date}T${record.accident_time}`);
-    const d = new Date(`${record.date_of_death}T${record.time_of_death}`);
+    const d = new Date(`${record.death_date}T${record.death_time}`);
     const hours = (d.getTime() - a.getTime()) / 36e5;
-    if (!Number.isNaN(hours) && hours >= 0) record.hours_accident_to_death = Math.round(hours * 10) / 10;
+    if (!Number.isNaN(hours) && hours >= 0) record.hours_to_death = Math.round(hours * 10) / 10;
   }
 
   const study_id = `RTA-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   record.study_id = study_id;
-  record.consent_given = true;
+  record.consent_given = true; // needs a Checkbox column named consent_given in NocoDB
 
   const res = await fetch(
     `${process.env.NOCODB_URL}/api/v2/tables/${process.env.NOCODB_TABLE_ID}/records`,
